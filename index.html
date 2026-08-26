@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HAUG - Validación de Línea de Vida</title>
+    <style>
+        :root {
+            --bg-main: #f8fafc;
+            --card-bg: #ffffff;
+            --text-dark: #0f172a;
+            --text-muted: #64748b;
+            --primary: #dc2626; /* Rojo corporativo HAUG */
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --success: #10b981;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        body { background-color: var(--bg-main); color: var(--text-dark); padding: 15px; display: flex; justify-content: center; }
+        .container { max-width: 900px; width: 100%; display: grid; grid-template-columns: 1fr; gap: 20px; }
+        @media (min-width: 768px) { .container { grid-template-columns: 1fr 1fr; } }
+
+        .card { background: var(--card-bg); border-radius: 12px; padding: 20px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); display: flex; flex-direction: column; }
+        .brand-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; }
+        .brand-title { font-weight: bold; font-size: 1.1rem; color: var(--primary); letter-spacing: 0.5px; }
+        h1 { font-size: 1.2rem; color: var(--text-dark); margin-bottom: 4px; }
+        p.subtitle { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 20px; }
+
+        .form-group { margin-bottom: 20px; }
+        label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 6px; }
+        .input-row { display: flex; align-items: center; gap: 10px; }
+        input[type="range"] { flex: 1; accent-color: var(--primary); }
+        input[type="number"] { width: 80px; padding: 6px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.9rem; text-align: center; }
+
+        .fixed-box-group { display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; }
+        .fixed-box { background: #f1f5f9; border-radius: 8px; padding: 8px 12px; display: flex; justify-content: space-between; align-items: center; font-size: 0.82rem; }
+        .fixed-box span.val { font-weight: bold; color: #1e293b; }
+
+        .result-box { padding: 15px; border-radius: 10px; border-left: 6px solid #cbd5e1; background: #f8fafc; transition: all 0.3s ease; margin-bottom: 15px; }
+        .result-box.danger { border-color: var(--danger); background: #fef2f2; color: #991b1b; }
+        .result-box.warning { border-color: var(--warning); background: #fffbeb; color: #92400e; }
+        .result-box.success { border-color: var(--success); background: #f0fdf4; color: #166534; }
+        
+        .result-title { font-weight: bold; font-size: 1.05rem; margin-bottom: 4px; }
+        .result-desc { font-size: 0.85rem; line-height: 1.35; }
+
+        .visual-container { display: flex; flex-direction: column; align-items: center; justify-content: space-between; background: #ffffff; }
+        canvas { width: 100%; max-width: 320px; height: 320px; background: #f1f5f9; border-radius: 8px; }
+
+        .footer-banner { background: #0f172a; color: #ffffff; padding: 12px 16px; border-radius: 8px; text-align: center; font-size: 0.85rem; font-weight: bold; border-left: 4px solid var(--primary); width: 100%; margin-top: auto; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- Panel de Datos -->
+    <div class="card">
+        <div class="brand-header">
+            <span class="brand-title">HAUG &bull; SST</span>
+            <span style="font-size: 0.75rem; background: #fee2e2; color: #991b1b; padding: 3px 8px; border-radius: 4px; font-weight: bold;">Trabajos en Altura</span>
+        </div>
+
+        <h1>Validación de Línea de Vida</h1>
+        <p class="subtitle">Complete los 2 datos requeridos para verificar el sistema anticaídas seguro.</p>
+
+        <div class="form-group">
+            <label for="slider-posicion">1. Altura donde te posicionarás / Pies (m)</label>
+            <div class="input-row">
+                <input type="range" id="slider-posicion" min="0" max="25" step="0.5" value="4.0">
+                <input type="number" id="num-posicion" min="0" max="25" step="0.5" value="4.0">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="slider-anclaje">2. Altura donde colocarás el punto de anclaje (m)</label>
+            <div class="input-row">
+                <input type="range" id="slider-anclaje" min="0" max="30" step="0.5" value="7.0">
+                <input type="number" id="num-anclaje" min="0" max="30" step="0.5" value="7.0">
+            </div>
+        </div>
+
+        <div class="fixed-box-group">
+            <div class="fixed-box">
+                <span>Altura Promedio Trabajador:</span>
+                <span class="val">1.70 m (Estándar)</span>
+            </div>
+            <div class="fixed-box">
+                <span>Distancia de Seguridad:</span>
+                <span class="val">1.00 m (Fijo)</span>
+            </div>
+        </div>
+
+        <div id="result-box" class="result-box success">
+            <div class="result-title" id="res-title">Cargando...</div>
+            <div class="result-desc" id="res-desc">Calculando parámetros...</div>
+        </div>
+    </div>
+
+    <!-- Panel Gráfico Dinámico -->
+    <div class="card visual-container">
+        <canvas id="schemaCanvas" width="320" height="320"></canvas>
+        
+        <!-- Frase Preventiva al Pie de la App -->
+        <div class="footer-banner">
+            "Para no llegar al piso y golpearte, el conector de anclaje adecuado debes colocarte"
+        </div>
+    </div>
+</div>
+
+<script>
+    const ALTURA_TRABAJADOR = 1.70; // Estándar promedio fijado
+    const DIST_SEGURIDAD = 1.00;    // Margen de seguridad fijo
+
+    const inputs = {
+        posicion: { slider: document.getElementById('slider-posicion'), num: document.getElementById('num-posicion') },
+        anclaje: { slider: document.getElementById('slider-anclaje'), num: document.getElementById('num-anclaje') }
+    };
+
+    const resBox = document.getElementById('result-box');
+    const resTitle = document.getElementById('res-title');
+    const resDesc = document.getElementById('res-desc');
+    const canvas = document.getElementById('schemaCanvas');
+    const ctx = canvas.getContext('2d');
+
+    function syncInputs(key, src) {
+        if (src === 'slider') {
+            inputs[key].num.value = inputs[key].slider.value;
+        } else {
+            inputs[key].slider.value = inputs[key].num.value;
+        }
+        calculate();
+    }
+
+    Object.keys(inputs).forEach(key => {
+        inputs[key].slider.addEventListener('input', () => syncInputs(key, 'slider'));
+        inputs[key].num.addEventListener('input', () => syncInputs(key, 'num'));
+    });
+
+    function calculate() {
+        const hPosicion = parseFloat(inputs.posicion.num.value) || 0;
+        let hAnclaje = parseFloat(inputs.anclaje.num.value) || 0;
+
+        if (hAnclaje < hPosicion) {
+            hAnclaje = hPosicion;
+            inputs.anclaje.num.value = hAnclaje;
+            inputs.anclaje.slider.value = hAnclaje;
+        }
+
+        const dUtil = hAnclaje - (ALTURA_TRABAJADOR + DIST_SEGURIDAD);
+
+        let status = '';
+        let title = '';
+        let desc = '';
+
+        // Nueva lógica de decisión
+        if (dUtil >= 6.0) {
+            status = 'success';
+            title = 'Línea de Vida con Absorbedor de Impacto';
+            desc = `Espacio libre disponible: ${dUtil.toFixed(2)}m. Es seguro utilizar eslinga convencional con absorbedor de impacto (requiere 6.0m o más).`;
+        } else if (dUtil >= 2.5) {
+            status = 'warning';
+            title = 'Línea de Vida Retráctil (Obligatorio)';
+            desc = `Espacio libre disponible: ${dUtil.toFixed(2)}m (Menor a 6.0m). Se requiere el uso obligatorio de equipo anticaídas retráctil con freno inmediato.`;
+        } else {
+            status = 'danger';
+            title = '¡ALERTA RIESGO CRÍTICO!';
+            desc = `Espacio libre insuficiente (${dUtil.toFixed(2)}m). El trabajador impactará contra el suelo antes de detener la caída. Eleve el punto de anclaje.`;
+        }
+
+        resBox.className = `result-box ${status}`;
+        resTitle.textContent = title;
+        resDesc.textContent = desc;
+
+        drawDiagram(ALTURA_TRABAJADOR, hPosicion, hAnclaje, status);
+    }
+
+    function drawDiagram(hTrab, hPos, hAnc, status) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        const margin = 40;
+        const maxHeight = Math.max(hAnc + 2, 8);
+        const scaleY = (canvas.height - 2 * margin) / maxHeight;
+
+        const getY = (val) => canvas.height - margin - (val * scaleY);
+
+        // Suelo
+        ctx.strokeStyle = '#94a3b8';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(20, canvas.height - margin);
+        ctx.lineTo(canvas.width - 20, canvas.height - margin);
+        ctx.stroke();
+
+        // Plataforma
+        const yPos = getY(hPos);
+        ctx.strokeStyle = '#475569';
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        ctx.moveTo(60, yPos);
+        ctx.lineTo(200, yPos);
+        ctx.stroke();
+
+        // Anclaje
+        const yAnc = getY(hAnc);
+        ctx.fillStyle = status === 'danger' ? '#ef4444' : (status === 'warning' ? '#f59e0b' : '#10b981');
+        ctx.beginPath();
+        ctx.arc(130, yAnc, 8, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Trabajador
+        const yHead = getY(hPos + hTrab);
+        ctx.fillStyle = '#dc2626';
+        ctx.beginPath();
+        ctx.arc(130, yHead + 8, 6, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = '#1e293b';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(130, yHead + 14);
+        ctx.lineTo(130, yPos);
+        ctx.stroke();
+
+        // Conexión Anclaje
+        ctx.setLineDash([4, 4]);
+        ctx.strokeStyle = '#dc2626';
+        ctx.beginPath();
+        ctx.moveTo(130, yAnc);
+        ctx.lineTo(130, yHead + 10);
+        ctx.stroke();
+        ctx.setLineDash([]);
+    }
+
+    calculate();
+</script>
+</body>
+</html>
