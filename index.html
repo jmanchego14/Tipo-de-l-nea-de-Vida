@@ -79,18 +79,28 @@
             color: #475569;
         }
 
-        input {
+        input, select {
             width: 100%;
-            padding: 8px 10px;
+            padding: 9px 10px;
             border: 1px solid #cbd5e1;
             border-radius: 6px;
             box-sizing: border-box;
             font-size: 0.9rem;
+            background-color: #fff;
         }
 
-        input:focus {
+        input:focus, select:focus {
             outline: none;
             border-color: var(--primary-red);
+        }
+
+        .preset-info {
+            background-color: #f1f5f9;
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            color: #475569;
+            margin-bottom: 12px;
         }
 
         .btn {
@@ -120,10 +130,6 @@
             display: none;
         }
 
-        .btn-pdf:hover {
-            background-color: #1e293b;
-        }
-
         .result-box {
             margin-top: 20px;
             padding: 15px;
@@ -140,33 +146,37 @@
             color: #1d4ed8;
         }
 
-        /* Configuración de Impresión / Guardado en PDF */
+        .recommendation {
+            margin-top: 12px;
+            padding: 10px 12px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            text-align: left;
+            line-height: 1.4;
+        }
+
+        .rec-safe {
+            background-color: #dcfce7;
+            color: #14532d;
+            border: 1px solid #86efac;
+        }
+
+        .rec-danger {
+            background-color: #fef2f2;
+            color: #7f1d1d;
+            border: 1px solid #fca5a5;
+        }
+
         @media print {
-            body {
-                background: white;
-                padding: 0;
-            }
-            .container {
-                box-shadow: none;
-                border: none;
-                max-width: 100%;
-            }
-            .btn, input {
-                border: none;
-                background: transparent;
-            }
-            .btn-calc, .btn-pdf {
-                display: none !important;
-            }
-            input {
-                font-weight: bold;
-            }
+            body { background: white; padding: 0; }
+            .container { box-shadow: none; border: none; max-width: 100%; }
+            .btn { display: none !important; }
         }
     </style>
 </head>
 <body>
 
-<div class="container" id="reporte">
+<div class="container">
     <div class="header-box">
         <div>
             <h2>Cálculo de Caída Libre</h2>
@@ -175,7 +185,7 @@
         <img src="haug.png" alt="Haug Logo">
     </div>
 
-    <div class="section-title">1. Datos del Trabajador y Área</div>
+    <div class="section-title">1. Datos del Trabajador</div>
     <div class="grid-2">
         <div class="form-group">
             <label>Nombres y Apellidos:</label>
@@ -186,75 +196,89 @@
             <input type="text" id="dni" placeholder="Ej. 72849103">
         </div>
     </div>
-    <div class="grid-2">
-        <div class="form-group">
-            <label>Empresa:</label>
-            <input type="text" id="empresa" value="Haug S.A.">
-        </div>
-        <div class="form-group">
-            <label>Área / Trabajo:</label>
-            <input type="text" id="area" placeholder="Ej. Mantenimiento">
-        </div>
-    </div>
 
-    <div class="section-title">2. Parámetros Técnicos del Sistema Anticaídas</div>
-    <div class="grid-2">
-        <div class="form-group">
-            <label>Línea de Anclaje - L (m):</label>
-            <input type="number" id="longitud" step="0.1" value="1.8">
-        </div>
-        <div class="form-group">
-            <label>Absorbedor Impacto - E (m):</label>
-            <input type="number" id="elongacion" step="0.1" value="1.2">
-        </div>
-    </div>
-    <div class="grid-2">
-        <div class="form-group">
-            <label>Altura Argolla Dorsal - H (m):</label>
-            <input type="number" id="estatura" step="0.1" value="1.5">
-        </div>
-        <div class="form-group">
-            <label>Factor Seguridad - FS (m):</label>
-            <input type="number" id="seguridad" step="0.1" value="1.0">
-        </div>
-    </div>
+    <div class="section-title">2. Selección de Sistema y Medidas de Campo</div>
+    
     <div class="form-group">
-        <label>Altura Libre Disponible en Trabajo (m):</label>
-        <input type="number" id="disponible" step="0.1" placeholder="Ej. 6.0">
+        <label>Tipo de Sistema Anticaídas:</label>
+        <select id="tipoAutoadhesivo" onchange="actualizarPresets()">
+            <option value="absorbedor">Línea con Absorbedor de Impacto</option>
+            <option value="restriccion">Línea de Restricción</option>
+            <option value="retractil">Bloque Retráctil</option>
+        </select>
     </div>
 
-    <button class="btn btn-calc" onclick="calcularDAC()">Calcular DAC</button>
+    <div class="preset-info" id="preset-texto">
+        <strong>Valores Predeterminados:</strong> Lanyard = 1.80m | Absorbedor = 1.20m | Altura Dorsal = 1.50m | Margen de Seguridad = 1.00m
+    </div>
+
+    <div class="grid-2">
+        <div class="form-group">
+            <label>Posicionamiento del Trabajador (m):</label>
+            <input type="number" id="posicionamiento" step="0.1" placeholder="Nivel de pies (Ej. 1.8)">
+        </div>
+        <div class="form-group">
+            <label>Altura Punto de Anclaje (m):</label>
+            <input type="number" id="anclaje" step="0.1" placeholder="Ej. 3.3">
+        </div>
+    </div>
+
+    <button class="btn btn-calc" onclick="evaluarSeguridad()">Calcular y Evaluar Sistema</button>
 
     <div class="result-box" id="resultado">
-        <div>Distancia Absoluta de Caída Requerida:</div>
+        <div>Distancia Absoluta de Caída Requerida (DAC):</div>
         <div class="result-value" id="dac-valor">0.00 m</div>
         <div id="dac-status" style="margin-top: 8px; font-weight: bold;"></div>
+        <div id="recomendacion-box" class="recommendation"></div>
     </div>
 
     <button class="btn btn-pdf" id="btnExportar" onclick="window.print()">Guardar / Imprimir Reporte PDF</button>
 </div>
 
 <script>
-    function calcularDAC() {
-        const L = parseFloat(document.getElementById('longitud').value) || 0;
-        const E = parseFloat(document.getElementById('elongacion').value) || 0;
-        const H = parseFloat(document.getElementById('estatura').value) || 0;
-        const FS = parseFloat(document.getElementById('seguridad').value) || 0;
-        const Disp = parseFloat(document.getElementById('disponible').value);
+    const configs = {
+        restriccion: { L: 1.8, E: 0.0, H: 1.5, FS: 1.0, label: "Lanyard = 1.80m | Absorbedor = 0.00m | Altura Dorsal = 1.50m | Margen = 1.00m" },
+        absorbedor:  { L: 1.8, E: 1.2, H: 1.5, FS: 1.0, label: "Lanyard = 1.80m | Absorbedor = 1.20m | Altura Dorsal = 1.50m | Margen = 1.00m" },
+        retractil:   { L: 0.8, E: 0.4, H: 1.5, FS: 1.0, label: "Freno Retráctil = 0.80m | Elongación = 0.40m | Altura Dorsal = 1.50m | Margen = 1.00m" }
+    };
 
-        const dac = L + E + H + FS;
+    function actualizarPresets() {
+        const sistema = document.getElementById('tipoAutoadhesivo').value;
+        document.getElementById('preset-texto').innerHTML = "<strong>Valores Predeterminados:</strong> " + configs[sistema].label;
+    }
 
-        document.getElementById('dac-valor').innerText = dac.toFixed(2) + " m";
-        
+    function evaluarSeguridad() {
+        const sistema = document.getElementById('tipoAutoadhesivo').value;
+        const posPies = parseFloat(document.getElementById('posicionamiento').value) || 0;
+        const altAnclaje = parseFloat(document.getElementById('anclaje').value) || 0;
+
+        const cfg = configs[sistema];
+        const dacRequerido = cfg.L + cfg.E + cfg.H + cfg.FS;
+        const alturaDisponible = altAnclaje; 
+
+        document.getElementById('dac-valor').innerText = dacRequerido.toFixed(2) + " m";
+
         const statusDiv = document.getElementById('dac-status');
-        if (!isNaN(Disp)) {
-            if (dac <= Disp) {
-                statusDiv.innerHTML = "<span style='color: #15803d;'>✓ SISTEMA SEGURO (DAC &le; Altura Disponible)</span>";
-            } else {
-                statusDiv.innerHTML = "<span style='color: #b91c1c;'>✕ RIESGO DE CAÍDA (DAC supera la Altura Disponible)</span>";
-            }
+        const recBox = document.getElementById('recomendacion-box');
+
+        if (alturaDisponible >= dacRequerido) {
+            statusDiv.innerHTML = "<span style='color: #15803d;'>✓ SISTEMA SEGURO</span>";
+            recBox.className = "recommendation rec-safe";
+            recBox.innerHTML = "<strong>💡 Recomendación:</strong> El punto de anclaje proporciona la distancia de caída requerida (" + dacRequerido.toFixed(2) + " m). Se autoriza el trabajo con el sistema seleccionado.";
         } else {
-            statusDiv.innerHTML = "";
+            statusDiv.innerHTML = "<span style='color: #b91c1c;'>✕ RIESGO DE CAÍDA / IMPACTO</span>";
+            recBox.className = "recommendation rec-danger";
+            
+            let sugerencia = "";
+            if (sistema === "absorbedor") {
+                sugerencia = "Cambiar a un <strong>Bloque Retráctil</strong> para reducir la distancia de caída a 3.70 m, o subir el punto de anclaje por encima de la cabeza.";
+            } else if (sistema === "restriccion") {
+                sugerencia = "Ajustar la longitud de la línea a una medida menor para evitar que el trabajador alcance el borde desprotegido.";
+            } else {
+                sugerencia = "Elevar el punto de anclaje a una estructura superior o utilizar una línea de vida vertical rigidizada.";
+            }
+
+            recBox.innerHTML = "<strong>⚠️ Recomendación Operativa:</strong> La altura libre de anclaje (" + alturaDisponible.toFixed(2) + " m) es inferior al mínimo seguro (" + dacRequerido.toFixed(2) + " m). <br><br><strong>Solución propuesta:</strong> " + sugerencia;
         }
 
         document.getElementById('resultado').style.display = 'block';
