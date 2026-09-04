@@ -3,268 +3,264 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HAUG - Validación de Línea de Vida</title>
+    <title>Cálculo de Caída Libre - Haug S.A.</title>
     <style>
         :root {
-            --bg-main: #f8fafc;
-            --card-bg: #ffffff;
-            --text-dark: #0f172a;
-            --text-muted: #64748b;
-            --primary: #dc2626;
-            --danger: #ef4444;
-            --warning: #f59e0b;
-            --success: #10b981;
+            --primary-red: #d32f2f;
+            --primary-dark: #0f172a;
+            --bg: #f8fafc;
+            --border: #e2e8f0;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-        body { background-color: var(--bg-main); color: var(--text-dark); padding: 15px; display: flex; justify-content: center; }
-        .container { max-width: 900px; width: 100%; display: grid; grid-template-columns: 1fr; gap: 20px; }
-        @media (min-width: 768px) { .container { grid-template-columns: 1fr 1fr; } }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: #334155;
+            margin: 0;
+            padding: 20px;
+        }
 
-        .card { background: var(--card-bg); border-radius: 12px; padding: 20px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); display: flex; flex-direction: column; }
-        .brand-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; }
-        .brand-title { font-weight: bold; font-size: 1.1rem; color: var(--primary); letter-spacing: 0.5px; }
-        h1 { font-size: 1.2rem; color: var(--text-dark); margin-bottom: 4px; }
-        p.subtitle { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 20px; }
+        .container {
+            max-width: 680px;
+            margin: 0 auto;
+            background: #ffffff;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            border: 1px solid var(--border);
+        }
 
-        .form-group { margin-bottom: 20px; }
-        label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 6px; }
-        .input-row { display: flex; align-items: center; gap: 10px; }
-        input[type="range"] { flex: 1; accent-color: var(--primary); }
-        input[type="number"] { width: 80px; padding: 6px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.9rem; text-align: center; }
+        .header-box {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 3px solid var(--primary-red);
+            padding-bottom: 12px;
+            margin-bottom: 20px;
+        }
 
-        .result-box { padding: 15px; border-radius: 10px; border-left: 6px solid #cbd5e1; background: #f8fafc; transition: all 0.3s ease; margin-bottom: 15px; }
-        .result-box.danger { border-color: var(--danger); background: #fef2f2; color: #991b1b; }
-        .result-box.warning { border-color: var(--warning); background: #fffbeb; color: #92400e; }
-        .result-box.success { border-color: var(--success); background: #f0fdf4; color: #166534; }
-        
-        .result-title { font-weight: bold; font-size: 1.05rem; margin-bottom: 4px; }
-        .result-desc { font-size: 0.85rem; line-height: 1.35; }
+        .header-box h2 {
+            color: var(--primary-dark);
+            margin: 0;
+            font-size: 1.4rem;
+            text-transform: uppercase;
+        }
 
-        .visual-container { display: flex; flex-direction: column; align-items: center; justify-content: space-between; background: #ffffff; gap: 15px; }
-        canvas { width: 100%; max-width: 340px; height: 380px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; }
+        .header-box img {
+            height: 48px;
+            width: auto;
+        }
 
-        .footer-banner { background: #0f172a; color: #ffffff; padding: 12px 16px; border-radius: 8px; text-align: center; font-size: 0.85rem; font-weight: bold; border-left: 4px solid var(--primary); width: 100%; margin-top: auto; }
+        .section-title {
+            font-weight: 700;
+            color: var(--primary-red);
+            margin-top: 20px;
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .form-group {
+            margin-bottom: 12px;
+        }
+
+        label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 4px;
+            color: #475569;
+        }
+
+        input {
+            width: 100%;
+            padding: 8px 10px;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 0.9rem;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--primary-red);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 15px;
+            transition: background 0.2s;
+        }
+
+        .btn-calc {
+            background-color: var(--primary-red);
+            color: white;
+        }
+
+        .btn-calc:hover {
+            background-color: #b71c1c;
+        }
+
+        .btn-pdf {
+            background-color: var(--primary-dark);
+            color: white;
+            display: none;
+        }
+
+        .btn-pdf:hover {
+            background-color: #1e293b;
+        }
+
+        .result-box {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            display: none;
+            text-align: center;
+        }
+
+        .result-value {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #1d4ed8;
+        }
+
+        /* Configuración de Impresión / Guardado en PDF */
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+            .container {
+                box-shadow: none;
+                border: none;
+                max-width: 100%;
+            }
+            .btn, input {
+                border: none;
+                background: transparent;
+            }
+            .btn-calc, .btn-pdf {
+                display: none !important;
+            }
+            input {
+                font-weight: bold;
+            }
+        }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <div class="card">
-        <div class="brand-header">
-            <span class="brand-title">HAUG &bull; SST</span>
-            <span style="font-size: 0.75rem; background: #fee2e2; color: #991b1b; padding: 3px 8px; border-radius: 4px; font-weight: bold;">Trabajos en Altura</span>
+<div class="container" id="reporte">
+    <div class="header-box">
+        <div>
+            <h2>Cálculo de Caída Libre</h2>
+            <small style="color: #64748b;">Evaluación Tecno-Operativa de Seguridad</small>
         </div>
+        <img src="haug.png" alt="Haug Logo">
+    </div>
 
-        <h1>Validación de Línea de Vida</h1>
-        <p class="subtitle">Ingrese las alturas para verificar la distancia de caída requerida.</p>
-
+    <div class="section-title">1. Datos del Trabajador y Área</div>
+    <div class="grid-2">
         <div class="form-group">
-            <label for="slider-posicion">1. Altura de pies del trabajador / Nivel de trabajo (m)</label>
-            <div class="input-row">
-                <input type="range" id="slider-posicion" min="0" max="25" step="0.5" value="4.5">
-                <input type="number" id="num-posicion" min="0" max="25" step="0.5" value="4.5">
-            </div>
+            <label>Nombres y Apellidos:</label>
+            <input type="text" id="nombre" placeholder="Ej. Juan Pérez">
         </div>
-
         <div class="form-group">
-            <label for="slider-anclaje">2. Altura del Punto de Anclaje (m)</label>
-            <div class="input-row">
-                <input type="range" id="slider-anclaje" min="0" max="30" step="0.5" value="6.0">
-                <input type="number" id="num-anclaje" min="0" max="30" step="0.5" value="6.0">
-            </div>
+            <label>DNI / Documento:</label>
+            <input type="text" id="dni" placeholder="Ej. 72849103">
         </div>
-
-        <div id="result-box" class="result-box success">
-            <div class="result-title" id="res-title">Cargando...</div>
-            <div class="result-desc" id="res-desc">Calculando parámetros...</div>
+    </div>
+    <div class="grid-2">
+        <div class="form-group">
+            <label>Empresa:</label>
+            <input type="text" id="empresa" value="Haug S.A.">
+        </div>
+        <div class="form-group">
+            <label>Área / Trabajo:</label>
+            <input type="text" id="area" placeholder="Ej. Mantenimiento">
         </div>
     </div>
 
-    <div class="card visual-container">
-        <canvas id="schemaCanvas" width="340" height="380"></canvas>
-        <div class="footer-banner">
-            "Para no llegar al piso y golpearte, el conector de anclaje adecuado debes colocarte"
+    <div class="section-title">2. Parámetros Técnicos del Sistema Anticaídas</div>
+    <div class="grid-2">
+        <div class="form-group">
+            <label>Línea de Anclaje - L (m):</label>
+            <input type="number" id="longitud" step="0.1" value="1.8">
+        </div>
+        <div class="form-group">
+            <label>Absorbedor Impacto - E (m):</label>
+            <input type="number" id="elongacion" step="0.1" value="1.2">
         </div>
     </div>
+    <div class="grid-2">
+        <div class="form-group">
+            <label>Altura Argolla Dorsal - H (m):</label>
+            <input type="number" id="estatura" step="0.1" value="1.5">
+        </div>
+        <div class="form-group">
+            <label>Factor Seguridad - FS (m):</label>
+            <input type="number" id="seguridad" step="0.1" value="1.0">
+        </div>
+    </div>
+    <div class="form-group">
+        <label>Altura Libre Disponible en Trabajo (m):</label>
+        <input type="number" id="disponible" step="0.1" placeholder="Ej. 6.0">
+    </div>
+
+    <button class="btn btn-calc" onclick="calcularDAC()">Calcular DAC</button>
+
+    <div class="result-box" id="resultado">
+        <div>Distancia Absoluta de Caída Requerida:</div>
+        <div class="result-value" id="dac-valor">0.00 m</div>
+        <div id="dac-status" style="margin-top: 8px; font-weight: bold;"></div>
+    </div>
+
+    <button class="btn btn-pdf" id="btnExportar" onclick="window.print()">Guardar / Imprimir Reporte PDF</button>
 </div>
 
 <script>
-    const REQUERIMIENTO_CLARIDAD_ABSORBEDOR = 5.70;
+    function calcularDAC() {
+        const L = parseFloat(document.getElementById('longitud').value) || 0;
+        const E = parseFloat(document.getElementById('elongacion').value) || 0;
+        const H = parseFloat(document.getElementById('estatura').value) || 0;
+        const FS = parseFloat(document.getElementById('seguridad').value) || 0;
+        const Disp = parseFloat(document.getElementById('disponible').value);
 
-    const inputs = {
-        posicion: { slider: document.getElementById('slider-posicion'), num: document.getElementById('num-posicion') },
-        anclaje: { slider: document.getElementById('slider-anclaje'), num: document.getElementById('num-anclaje') }
-    };
+        const dac = L + E + H + FS;
 
-    const resBox = document.getElementById('result-box');
-    const resTitle = document.getElementById('res-title');
-    const resDesc = document.getElementById('res-desc');
-    const canvas = document.getElementById('schemaCanvas');
-    const ctx = canvas.getContext('2d');
-
-    function syncInputs(key, src) {
-        if (src === 'slider') {
-            inputs[key].num.value = inputs[key].slider.value;
+        document.getElementById('dac-valor').innerText = dac.toFixed(2) + " m";
+        
+        const statusDiv = document.getElementById('dac-status');
+        if (!isNaN(Disp)) {
+            if (dac <= Disp) {
+                statusDiv.innerHTML = "<span style='color: #15803d;'>✓ SISTEMA SEGURO (DAC &le; Altura Disponible)</span>";
+            } else {
+                statusDiv.innerHTML = "<span style='color: #b91c1c;'>✕ RIESGO DE CAÍDA (DAC supera la Altura Disponible)</span>";
+            }
         } else {
-            inputs[key].slider.value = inputs[key].num.value;
-        }
-        calculate();
-    }
-
-    Object.keys(inputs).forEach(key => {
-        inputs[key].slider.addEventListener('input', function() { syncInputs(key, 'slider'); });
-        inputs[key].num.addEventListener('input', function() { syncInputs(key, 'num'); });
-    });
-
-    function calculate() {
-        const hPosicion = parseFloat(inputs.posicion.num.value) || 0;
-        let hAnclaje = parseFloat(inputs.anclaje.num.value) || 0;
-
-        if (hAnclaje < hPosicion) {
-            hAnclaje = hPosicion;
-            inputs.anclaje.num.value = hAnclaje;
-            inputs.anclaje.slider.value = hAnclaje;
+            statusDiv.innerHTML = "";
         }
 
-        let status = '';
-        let title = '';
-        let desc = '';
-
-        if (hAnclaje >= 6.0 && hAnclaje >= REQUERIMIENTO_CLARIDAD_ABSORBEDOR) {
-            status = 'success';
-            title = 'Puede usar Línea de Vida con Absorbedor de Impacto';
-            desc = 'La altura del anclaje (' + hAnclaje.toFixed(2) + 'm) cumple con el requerimiento de claridad de 5.70m (Línea: 1.8m + Absorbedor: 1.2m + Estatura: 1.7m + Margen: 1.0m). Es seguro el uso de línea con absorbedor.';
-        } else if (hAnclaje >= 2.5) {
-            status = 'warning';
-            title = 'Uso Obligatorio de Línea de Vida Retráctil';
-            desc = 'La altura de anclaje (' + hAnclaje.toFixed(2) + 'm) es menor a los 6.0m requeridos para absorbedor de impacto. Debe emplear un sistema retráctil para limitar la distancia de caída.';
-        } else {
-            status = 'danger';
-            title = '¡ALERTA RIESGO CRÍTICO DE IMPACTO!';
-            desc = 'La altura de anclaje (' + hAnclaje.toFixed(2) + 'm) es insuficiente. El trabajador impactará contra el piso antes de frenar. Eleve la posición del punto de anclaje.';
-        }
-
-        resBox.className = 'result-box ' + status;
-        resTitle.textContent = title;
-        resDesc.textContent = desc;
-
-        drawDiagram(hPosicion, hAnclaje, status);
+        document.getElementById('resultado').style.display = 'block';
+        document.getElementById('btnExportar').style.display = 'block';
     }
-
-    function drawDiagram(hPos, hAnc, status) {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-        const margin = 40;
-        const maxHeight = Math.max(hAnc + 1.5, 8);
-        const scaleY = (canvas.height - 2 * margin) / maxHeight;
-
-        const getY = function(val) { return canvas.height - margin - (val * scaleY); };
-        const centerX = canvas.width / 2;
-
-        // Suelo
-        ctx.strokeStyle = '#64748b';
-        ctx.lineWidth = 3;
-        ctx.beginPath();
-        ctx.moveTo(20, canvas.height - margin);
-        ctx.lineTo(canvas.width - 20, canvas.height - margin);
-        ctx.stroke();
-
-        ctx.fillStyle = '#64748b';
-        ctx.font = '10px sans-serif';
-        ctx.fillText('Nivel 0.0m (Piso)', 25, canvas.height - margin + 15);
-
-        // Plataforma
-        const yPos = getY(hPos);
-        ctx.strokeStyle = '#334155';
-        ctx.lineWidth = 5;
-        ctx.beginPath();
-        ctx.moveTo(centerX - 60, yPos);
-        ctx.lineTo(centerX + 60, yPos);
-        ctx.stroke();
-
-        // Trabajador
-        const alturaPersonaPx = 1.70 * scaleY;
-        const yPies = yPos;
-        const yCabeza = yPies - alturaPersonaPx;
-        const yCintura = yPies - (alturaPersonaPx * 0.5);
-        const yHombros = yCabeza + (alturaPersonaPx * 0.2);
-        const yArgollaDorsal = yHombros + 5;
-
-        ctx.strokeStyle = '#0f172a';
-        ctx.lineWidth = 3;
-        ctx.fillStyle = '#0f172a';
-
-        // Cabeza
-        ctx.beginPath();
-        ctx.arc(centerX, yCabeza + 6, 7, 0, Math.PI * 2);
-        ctx.fill();
-
-        // Casco
-        ctx.fillStyle = '#f59e0b';
-        ctx.beginPath();
-        ctx.arc(centerX, yCabeza + 4, 8, Math.PI, 0);
-        ctx.fill();
-
-        // Cuerpo
-        ctx.beginPath();
-        ctx.moveTo(centerX, yCabeza + 13);
-        ctx.lineTo(centerX, yCintura);
-        ctx.lineTo(centerX - 10, yPies);
-        ctx.moveTo(centerX, yCintura);
-        ctx.lineTo(centerX + 10, yPies);
-        ctx.moveTo(centerX - 12, yHombros + 10);
-        ctx.lineTo(centerX, yHombros);
-        ctx.lineTo(centerX + 12, yHombros + 10);
-        ctx.stroke();
-
-        // Arnés
-        ctx.strokeStyle = '#dc2626';
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.moveTo(centerX - 6, yHombros);
-        ctx.lineTo(centerX + 6, yCintura);
-        ctx.moveTo(centerX + 6, yHombros);
-        ctx.lineTo(centerX - 6, yCintura);
-        ctx.stroke();
-
-        // Anclaje
-        const yAnc = getY(hAnc);
-        let statusColor = status === 'danger' ? '#ef4444' : (status === 'warning' ? '#f59e0b' : '#10b981');
-
-        ctx.strokeStyle = '#475569';
-        ctx.lineWidth = 4;
-        ctx.beginPath();
-        ctx.moveTo(centerX - 25, yAnc - 8);
-        ctx.lineTo(centerX + 25, yAnc - 8);
-        ctx.stroke();
-
-        ctx.fillStyle = statusColor;
-        ctx.beginPath();
-        ctx.arc(centerX, yAnc, 8, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.strokeStyle = '#0f172a';
-        ctx.lineWidth = 1.5;
-        ctx.stroke();
-
-        // Conector / Línea
-        ctx.strokeStyle = statusColor;
-        ctx.lineWidth = 3;
-        ctx.setLineDash([4, 3]);
-        ctx.beginPath();
-        ctx.moveTo(centerX, yAnc);
-        ctx.lineTo(centerX, yArgollaDorsal);
-        ctx.stroke();
-        ctx.setLineDash([]);
-
-        // Textos del gráfico
-        ctx.fillStyle = '#0f172a';
-        ctx.font = 'bold 10px sans-serif';
-        ctx.fillText('Anclaje (' + hAnc.toFixed(1) + 'm)', centerX + 32, yAnc + 4);
-        ctx.fillText('Pies (' + hPos.toFixed(1) + 'm)', centerX + 65, yPos + 4);
-    }
-
-    calculate();
 </script>
+
 </body>
 </html>
