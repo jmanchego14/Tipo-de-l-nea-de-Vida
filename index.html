@@ -2,12 +2,12 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Cálculo de Caída Libre - Editable</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora y Reporte de Caída Libre</title>
     <style>
         @page {
             size: A4;
             margin: 12mm 15mm;
-            background-color: #f8fafc;
         }
         * {
             box-sizing: border-box;
@@ -18,24 +18,28 @@
             padding: 20px;
             color: #1e293b;
             font-size: 9.5pt;
-            line-height: 1.4;
             background-color: #f8fafc;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
         }
         .header {
             background-color: #0f172a;
             color: #ffffff;
             padding: 15px;
             border-bottom: 4px solid #d32f2f;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
             border-radius: 6px 6px 0 0;
+            margin: -20px -20px 20px -20px;
         }
         .header h1 {
             margin: 0;
-            font-size: 16pt;
+            font-size: 15pt;
             font-weight: 700;
-            color: #f8fafc;
         }
         .header p {
             margin: 3px 0 0 0;
@@ -43,28 +47,25 @@
             color: #94a3b8;
         }
         .section-title {
-            font-size: 10pt;
+            font-size: 9.5pt;
             font-weight: 700;
             color: #0f172a;
             border-left: 4px solid #d32f2f;
             padding-left: 8px;
             margin-top: 15px;
-            margin-bottom: 8px;
+            margin-bottom: 10px;
             text-transform: uppercase;
         }
-        .grid-table, .calc-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 12px;
-            background-color: #ffffff;
-            border-radius: 6px;
-            border: 1px solid #e2e8f0;
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 10px;
         }
-        .grid-table td, .calc-table td, .calc-table th {
-            padding: 8px 10px;
-            border-bottom: 1px solid #f1f5f9;
+        .form-group {
+            display: flex;
+            flex-direction: column;
         }
-        .grid-table td { width: 50%; }
         .label {
             font-weight: 600;
             color: #475569;
@@ -72,173 +73,232 @@
             text-transform: uppercase;
             margin-bottom: 4px;
         }
-        /* Estilos para campos editables */
         input[type="text"], input[type="number"], select {
-            width: 100%;
             padding: 6px 8px;
             border: 1px solid #cbd5e1;
             border-radius: 4px;
-            font-size: 9.5pt;
+            font-size: 9pt;
             color: #0f172a;
             background-color: #fff;
         }
-        input:focus, select:focus {
-            outline: none;
-            border-color: #2563eb;
-            box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+        input[readonly] {
+            background-color: #f1f5f9;
+            color: #64748b;
         }
-        .editable-box {
-            min-height: 20px;
-            padding: 4px;
-            border: 1px dashed #cbd5e1;
-            border-radius: 4px;
-            background-color: #fff;
+        .calc-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 10px 0;
+            border: 1px solid #e2e8f0;
         }
-        .editable-box:focus {
-            outline: none;
-            border-color: #2563eb;
-            background-color: #f0f7ff;
+        .calc-table th, .calc-table td {
+            padding: 6px 10px;
+            border: 1px solid #e2e8f0;
+            text-align: left;
+            font-size: 8.5pt;
         }
         .calc-table th {
             background-color: #f1f5f9;
             color: #334155;
-            font-size: 8pt;
             text-transform: uppercase;
-            text-align: left;
         }
         .result-box {
             background-color: #eff6ff;
             border: 2px solid #2563eb;
-            border-radius: 8px;
+            border-radius: 6px;
             padding: 12px;
             text-align: center;
             margin: 15px 0;
         }
         .result-value {
-            font-size: 18pt;
+            font-size: 16pt;
             font-weight: 800;
             color: #1d4ed8;
         }
-        .recommendation-box {
-            background-color: #fefce8;
-            border: 1px solid #fef08a;
-            border-radius: 6px;
-            padding: 10px 12px;
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-weight: 700;
             font-size: 8.5pt;
-            color: #713f12;
+            margin-top: 5px;
+        }
+        .status-safe { background-color: #dcfce7; color: #15803d; border: 1px solid #86efac; }
+        .status-danger { background-color: #fee2e2; color: #b91c1c; border: 1px solid #fca5a5; }
+        .btn-container {
+            text-align: right;
+            margin-top: 15px;
+        }
+        .btn-print {
+            background-color: #d32f2f;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-weight: 700;
+            cursor: pointer;
         }
         @media print {
             body { padding: 0; background-color: #fff; }
-            input, select { border: none; background: transparent; padding: 0; }
-            .editable-box { border: none; }
+            .container { box-shadow: none; padding: 0; width: 100%; max-width: 100%; }
+            .header { margin: 0 0 15px 0; border-radius: 0; }
+            .btn-container { display: none; }
+            input, select { border: none; background: transparent; padding: 0; appearance: none; }
         }
     </style>
 </head>
 <body>
 
+<div class="container">
     <div class="header">
-        <div>
-            <h1>CÁLCULO DE CAÍDA LIBRE</h1>
-            <p>Evaluación Tecno-Operativa de Seguridad para Trabajos en Altura</p>
+        <h1>CÁLCULO DE CAÍDA LIBRE Y EVALUACIÓN DE SEGURIDAD</h1>
+        <p>Sistema Técnico de Control de Riesgos para Trabajos en Altura</p>
+    </div>
+
+    <!-- 1. DATOS PERSONALES -->
+    <div class="section-title">1. Datos del Trabajador y Área</div>
+    <div class="grid-2">
+        <div class="form-group">
+            <span class="label">Nombres y Apellidos</span>
+            <input type="text" placeholder="Ej. Juan Pérez Gómez">
+        </div>
+        <div class="form-group">
+            <span class="label">DNI / Documento</span>
+            <input type="text" placeholder="Ej. 72849103">
+        </div>
+    </div>
+    <div class="grid-2">
+        <div class="form-group">
+            <span class="label">Empresa</span>
+            <input type="text" placeholder="Ej. Haug S.A.">
+        </div>
+        <div class="form-group">
+            <span class="label">Área / Puesto</span>
+            <input type="text" placeholder="Ej. Mantenimiento Estructural">
         </div>
     </div>
 
-    <div class="section-title">1. Datos del Trabajador y Área</div>
-    <table class="grid-table">
-        <tr>
-            <td>
-                <div class="label">Nombres y Apellidos</div>
-                <input type="text" value="Juan Carlos Pérez Gómez">
-            </td>
-            <td>
-                <div class="label">DNI / Documento</div>
-                <input type="text" value="72849103">
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <div class="label">Empresa</div>
-                <input type="text" value="Haug S.A.">
-            </td>
-            <td>
-                <div class="label">Área / Trabajo</div>
-                <input type="text" value="Mantenimiento Estructural - Sector B">
-            </td>
-        </tr>
-    </table>
+    <!-- 2. DATOS DE ALTURA Y SELECCIÓN DE DISPOSITIVO -->
+    <div class="section-title">2. Parámetros de Trabajo y Dispositivo</div>
+    <div class="grid-2">
+        <div class="form-group">
+            <span class="label">Altura de Posicionamiento / Plataforma (m)</span>
+            <input type="number" id="hPosicion" step="0.1" value="1.80" oninput="calcular()">
+        </div>
+        <div class="form-group">
+            <span class="label">Altura del Punto de Anclaje (m)</span>
+            <input type="number" id="hAnclaje" step="0.1" value="3.20" oninput="calcular()">
+        </div>
+    </div>
+    <div class="form-group">
+        <span class="label">Tipo de Dispositivo a Utilizar</span>
+        <select id="tipoDispositivo" onchange="actualizarValores()">
+            <option value="restriccion">Línea de Restricción (Ajustada para impedir la caída)</option>
+            <option value="absorbedor">Línea de Vida con Absorbedor de Impacto</option>
+            <option value="retractil">Bloque Retráctil (Anti-caídas autoretráctil)</option>
+        </select>
+    </div>
 
-    <div class="section-title">2. Entradas del Trabajador</div>
-    <table class="grid-table">
-        <tr>
-            <td>
-                <div class="label">Sistema Elegido</div>
-                <select>
-                    <option value="restriccion" selected>Línea de Restricción (&lt; 3.50 m)</option>
-                    <option value="anticaidas">Sistema Anti-caídas (&gt; 3.50 m)</option>
-                    <option value="posicionamiento">Sistema de Posicionamiento</option>
-                </select>
-            </td>
-            <td>
-                <div class="label">Posicionamiento del Trabajador (m)</div>
-                <input type="number" step="0.1" value="1.80">
-            </td>
-        </tr>
-        <tr>
-            <td colspan="2">
-                <div class="label">Altura del Punto de Anclaje (m)</div>
-                <input type="number" step="0.1" value="3.20">
-            </td>
-        </tr>
-    </table>
-
-    <div class="section-title">3. Parámetros Técnicos del Equipo</div>
+    <!-- 3. DATOS PREDETERMINADOS (DINÁMICOS SEGÚN EL DISPOSITIVO) -->
+    <div class="section-title">3. Parámetros Predeterminados del Dispositivo</div>
     <table class="calc-table">
         <thead>
             <tr>
-                <th>Parámetro del Sistema</th>
+                <th>Parámetro Técnico</th>
                 <th>Símbolo</th>
-                <th>Valor Configurable</th>
+                <th>Valor Configurado</th>
             </tr>
         </thead>
         <tbody>
             <tr>
-                <td>Longitud de Línea / Estrobo (m)</td>
-                <td><strong>L</strong></td>
-                <td><input type="number" step="0.01" value="1.20"></td>
+                <td>Longitud / Despliegue del Dispositivo</td>
+                <td><strong>L / D</strong></td>
+                <td><input type="text" id="pLongitud" readonly></td>
             </tr>
             <tr>
-                <td>Elongación del Absorbedor (m)</td>
+                <td>Elongación del Absorbedor / Frenado</td>
                 <td><strong>E</strong></td>
-                <td><input type="number" step="0.01" value="0.00"></td>
+                <td><input type="text" id="pElongacion" readonly></td>
             </tr>
             <tr>
-                <td>Altura Argolla Dorsal (m)</td>
+                <td>Estatura Promedio / Arnés (Dorsal)</td>
                 <td><strong>H</strong></td>
-                <td><input type="number" step="0.01" value="1.50"></td>
+                <td><input type="text" id="pEstatura" value="1.50 m" readonly></td>
             </tr>
             <tr>
-                <td>Factor de Seguridad (m)</td>
+                <td>Margen de Seguridad Obligatorio</td>
                 <td><strong>FS</strong></td>
-                <td><input type="number" step="0.01" value="1.00"></td>
+                <td><input type="text" id="pMargen" value="1.00 m" readonly></td>
             </tr>
         </tbody>
     </table>
 
-    <div class="section-title">4. Evaluación de Seguridad y Recomendación</div>
+    <!-- 4. RESULTADO Y REPORTE -->
+    <div class="section-title">4. Resultado de Requerimiento de Altura Libre</div>
     <div class="result-box">
-        <div class="label">Requerimiento Total de Altura Libre (DAC)</div>
-        <div class="result-value" contenteditable="true">3.70 m</div>
-        <div style="margin-top: 5px;">
-            <strong style="color: #15803d;">✓ SISTEMA DE RESTRICCIÓN VÁLIDO (&lt; 3.50 m)</strong>
-        </div>
+        <div class="label">Distancia de Caída Requerida (DAC Total)</div>
+        <div class="result-value" id="resDAC">0.00 m</div>
+        <div id="resBadge" class="status-badge status-safe">EVALUANDO...</div>
     </div>
 
-    <div class="recommendation-box">
-        <strong>💡 Recomendación Operativa:</strong>
-        <div class="editable-box" contenteditable="true">
-            Al trabajar a una altura menor a 3.50 m, el uso de Línea de Restricción es totalmente válido y recomendado. Ajuste la longitud del estrobo a una distancia que impida físicamente que el trabajador alcance el borde o la línea de fuego.
-        </div>
+    <div class="btn-container">
+        <button class="btn-print" onclick="window.print()">Generar Reporte / Imprimir PDF</button>
     </div>
+</div>
+
+<script>
+    const configuraciones = {
+        restriccion: { longitud: 1.20, elongacion: 0.00, descL: "1.20 m (Estrobo corto)", descE: "0.00 m (No aplica)" },
+        absorbedor: { longitud: 1.80, elongacion: 1.07, descL: "1.80 m (Línea estándar)", descE: "1.07 m (Absorbedor abierto)" },
+        retractil: { longitud: 0.60, elongacion: 0.70, descL: "0.60 m (Bloqueo inmediato)", descE: "0.70 m (Frenado interno)" }
+    };
+
+    function actualizarValores() {
+        const tipo = document.getElementById("tipoDispositivo").value;
+        const config = configuraciones[tipo];
+        
+        document.getElementById("pLongitud").value = config.descL;
+        document.getElementById("pElongacion").value = config.descE;
+        
+        calcular();
+    }
+
+    function calcular() {
+        const tipo = document.getElementById("tipoDispositivo").value;
+        const config = configuraciones[tipo];
+        
+        const hAnclaje = parseFloat(document.getElementById("hAnclaje").value) || 0;
+        const hEstatura = 1.50;
+        const hMargen = 1.00;
+
+        // Fórmula de Distancia de Caída Requerida (DAC)
+        let dac = 0;
+        if (tipo === "restriccion") {
+            dac = config.longitud + hEstatura + hMargen;
+        } else {
+            dac = config.longitud + config.elongacion + hEstatura + hMargen;
+        }
+
+        document.getElementById("resDAC").innerText = dac.toFixed(2) + " m";
+
+        const badge = document.getElementById("resBadge");
+        
+        // Validación técnica
+        if (tipo === "restriccion" && hAnclaje < 3.50) {
+            badge.className = "status-badge status-safe";
+            badge.innerText = "✓ SISTEMA DE RESTRICCIÓN VÁLIDO PARA ALTURA < 3.50 m";
+        } else if (hAnclaje >= dac) {
+            badge.className = "status-badge status-safe";
+            badge.innerText = "✓ DISTANCIA DE CAÍDA SEGURA";
+        } else {
+            badge.className = "status-badge status-danger";
+            badge.innerText = "⚠ ALERTA: ALTURA DE ANCLAJE INSUFICIENTE PARA EL DISPOSITIVO";
+        }
+    }
+
+    // Inicializar al cargar
+    actualizarValores();
+</script>
 
 </body>
 </html>
